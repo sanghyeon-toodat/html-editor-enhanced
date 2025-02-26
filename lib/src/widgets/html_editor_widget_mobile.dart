@@ -147,9 +147,12 @@ class _HtmlEditorWidgetMobileState extends State<HtmlEditorWidget> {
                     javaScriptEnabled: true,
                     transparentBackground: true,
                     useShouldOverrideUrlLoading: true,
-                    useHybridComposition: widget.htmlEditorOptions
-                        .androidUseHybridComposition,
+                    useHybridComposition:
+                        widget.htmlEditorOptions.androidUseHybridComposition,
                     loadWithOverviewMode: true,
+                    disableInputAccessoryView: true,
+                    disableContextMenu: true,
+                    disableLongPressContextMenuOnLinks: true,
                   ),
                   initialUserScripts:
                       widget.htmlEditorOptions.mobileInitialScripts
@@ -213,7 +216,9 @@ class _HtmlEditorWidgetMobileState extends State<HtmlEditorWidget> {
                         });
                         await setHeightJS();
                       }
-                      var visibleDecimal = await visibleStream.stream.firstWhere((_) => !visibleStream.isClosed, orElse: () => 0);
+                      var visibleDecimal = await visibleStream.stream
+                          .firstWhere((_) => !visibleStream.isClosed,
+                              orElse: () => 0);
                       var newHeight = widget.otherOptions.height;
                       if (visibleDecimal > 0.1) {
                         this.setState(() {
@@ -448,6 +453,9 @@ class _HtmlEditorWidgetMobileState extends State<HtmlEditorWidget> {
                       await controller.evaluateJavascript(
                           source:
                               "document.getElementsByClassName('note-editable')[0].setAttribute('inputmode', '${describeEnum(widget.htmlEditorOptions.inputType)}');");
+                      await controller.evaluateJavascript(
+                          source:
+                              "document.getElementsByClassName('note-editable')[0].setAttribute('autocomplete', 'off'); document.getElementsByClassName('note-editable')[0].setAttribute('autocorrect', 'off'); document.getElementsByClassName('note-editable')[0].setAttribute('autocapitalize', 'off'); document.getElementsByClassName('note-editable')[0].setAttribute('spellcheck', 'false');");
                       if ((Theme.of(context).brightness == Brightness.dark ||
                               widget.htmlEditorOptions.darkMode == true) &&
                           widget.htmlEditorOptions.darkMode != false) {
