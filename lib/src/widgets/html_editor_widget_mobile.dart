@@ -535,6 +535,42 @@ class _HtmlEditorWidgetMobileState extends State<HtmlEditorWidget> {
                                     context.findRenderObject()!,
                                   );
                             }
+                            controller.evaluateJavascript(source: """
+                              (function() {
+                                // 현재 커서 위치의 요소를 가져옵니다
+                                var selection = window.getSelection();
+                                if (selection.rangeCount > 0) {
+                                  var range = selection.getRangeAt(0);
+                                  var currentNode = range.endContainer;
+                                  var currentElement = currentNode.nodeType === 3 ? currentNode.parentNode : currentNode;
+                                  
+                                  // 에디터 컨테이너와 현재 콘텐츠 정보를 가져옵니다
+                                  var editorContainer = document.querySelector('.note-editable');
+                                  var lastElement = editorContainer.lastElementChild;
+                                  
+                                  // 마지막 요소인지 확인합니다
+                                  var isLastLine = false;
+                                  if (currentElement === lastElement || currentElement.contains(lastElement) || lastElement.contains(currentElement)) {
+                                    isLastLine = true;
+                                  }
+                                  
+                                  // 마지막 줄이면 스크롤을 맨 아래로 이동합니다
+                                  if (isLastLine) {
+                                    editorContainer.scrollTop = editorContainer.scrollHeight;
+                                  } else {
+                                    // 마지막 줄이 아니더라도 현재 요소가 보이도록 스크롤합니다
+                                    // 요소의 위치를 계산하여 화면 중앙에 오도록 조정합니다
+                                    var rect = currentElement.getBoundingClientRect();
+                                    var containerRect = editorContainer.getBoundingClientRect();
+                                    
+                                    // 요소가 컨테이너 밖에 있는지 확인합니다
+                                    if (rect.bottom > containerRect.bottom || rect.top < containerRect.top) {
+                                      currentElement.scrollIntoView({block: 'center'});
+                                    }
+                                  }
+                                }
+                              })();
+                            """);
                             if (widget.callbacks != null &&
                                 widget.callbacks!.onChangeContent != null) {
                               widget.callbacks!.onChangeContent!
